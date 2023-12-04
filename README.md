@@ -7,10 +7,9 @@ This workshop is designed to give users an intro to Astro, Astronomer's flagship
 
 Ensure you have v1.19 of the Astronomer CLI installed. To complete the exercises, start Airflow on your local machine by running `astro dev start`. 
 
-Refer to the instructions below for each exercise. All DAGs can run locally without connecting to external systems.
+Refer to the instructions below for each exercise. All DAGs can run locally and on Astro without connecting to external systems. Possible solutions for DAG-related exercises can be found in the `solutions` folder, although for some exercises there are multiple ways to implement.
 
-Possible solutions can be found in the `solutions` folder, although for some exercises there are multiple ways to implement.
-
+Consider using [Ask Astronomer](ask.astronomer.io) if you need additional guidance with any of the exercises.
 
 ## Part 1: Creating Deployments
 In this section you will create multiple environments on Astro, from the Cloud UI and the API.
@@ -75,9 +74,9 @@ Feel free to use the following docs as resources:
 
 
 ### Exercise 6: Deploy your local project to Astro
-For this workshop, you'll use the Astro CLI to deploy code. We will also demo how you can deploy using CICD in a production setting.
+For this workshop, you'll use the Astro CLI to deploy code. Note that in a production setting, you will likely use CICD to deploy.
 
-> Task: Deploy your local project to the Astro Airflow Deployment you created in Part 1.
+> Task: Deploy your local project to the Astro Airflow Deployment you created in Part 1 using the Astro CLI.
 
 ## Part 4: Cloud IDE
 
@@ -115,7 +114,7 @@ Astro alerts provide an additional layer of observability over Airflow's built-i
 
 The Astro connection management feature allows you to create Airflow connections in the Cloud UI that can be used across all your Airflow deployments. 
 
-> Task: Create an HTTP connection called `http_<your-name>` in the workspace Environment, using the `generic` connection type and apply it to your deployment. In the host field, enter `http://api.open-notify.org/astros.json`. Next, override this connection for the `astronomer-demo-deployment` with a different API host (`https://manateejokesapi.herokuapp.com/manatees/random/` is a good option that does not require a key). Use the `exercise_9_connection` DAG to test the connection in both of your deployments (note that you will need to update the connection name in the DAG).
+> Task: Create an HTTP connection called `http_<your-name>` in the workspace Environment, using the `generic` connection type and apply it to your deployment. In the host field, enter `http://api.open-notify.org/astros.json`. Next, override this connection for the `astronomer-deployment` with a different API host (`https://manateejokesapi.herokuapp.com/manatees/random/` is a good option that does not require a key). Use the `exercise_9_connection` DAG to test the connection in your deployment (note that you will need to update the connection name in the DAG).
 
 ### Exercise 10: Roll back a deployment
 
