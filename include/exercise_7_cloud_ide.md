@@ -18,13 +18,16 @@ In the first global imports cell, add the following:
 
 `import pandas as pd`
 
-
 ### Step 3: Load Species Status Data
 
 Create a new Python cell called "load_species_status_data" and add the following code to the cell:
 
 ```python
-return pd.read_csv("https://raw.githubusercontent.com/astronomer/cli-cloud-ide-workshop/main/include/data/country_species_status_cleaned.csv", on_bad_lines='skip', nrows=100)
+return pd.read_csv(
+    "https://raw.githubusercontent.com/astronomer/cli-cloud-ide-workshop/main/include/data/country_species_status_cleaned.csv",
+    on_bad_lines='skip',
+    nrows=None
+)
 ```
 
 ### Step 4: Import and review species status data
@@ -34,7 +37,7 @@ Create a new SQL cell called `species_by_country`. In the connection drop down m
 Enter the following SQL code in the cell, and then run it.
 
 ```sql
-SELECT 
+SELECT
     "iucn",
     "IUCN Category",
     "spec",
@@ -57,7 +60,7 @@ endangered_species_agg = endangered_species[['cou', 'Country', 'Value']].groupby
 
 endangered_species_agg.rename(
    columns = { 'Value': 'endangered_species' },
-   inplace = True  
+   inplace = True
 )
 
 return endangered_species_agg
@@ -69,13 +72,16 @@ This takes the data returned in the previous cell and completes a couple of tran
 2. Filters to only the Critically Endangered Species IUCN category
 3. Calculates the total number of critically endangered species by country using `groupby`.
 
-
 ### Step 6: Load Terrestrial Protected Area Data
 
 Create a new Python cell called "load_terrestrial_protected_area_data" and add the following code to the cell:
 
 ```python
-return pd.read_csv("https://raw.githubusercontent.com/astronomer/cli-cloud-ide-workshop/main/include/data/country_terrestrial_protected_area_cleaned.csv", on_bad_lines='skip', nrows=100)
+return pd.read_csv(
+    "https://raw.githubusercontent.com/astronomer/cli-cloud-ide-workshop/main/include/data/country_terrestrial_protected_area_cleaned.csv",
+    on_bad_lines='skip',
+    nrows=None
+)
 ```
 
 ### Step 7: Import and review protected area data
@@ -83,7 +89,6 @@ return pd.read_csv("https://raw.githubusercontent.com/astronomer/cli-cloud-ide-w
 Create a new SQL cell called `terrestrial_protected_area`. In the connection drop down, choose the In-memory SQL database.
 
 Enter the following SQL code in the cell, and then run it.
-
 
 ```sql
 SELECT
@@ -107,7 +112,7 @@ tpa_2021['Value'] = tpa_2021['Value'].round(1)
 
 tpa_2021.rename(
    columns = { 'Value': 'protected_area' },
-   inplace = True  
+   inplace = True
 )
 
 return tpa_2021
@@ -145,10 +150,33 @@ limit 10;
 
 Run the cell and review the results to determine which countries are conservation priorities.
 
-### Step 11: Send a SUCCESS email 
+### Step 11: Visualize the results
+
+Before visualizing the results, add the following Python packages to the [Cloud IDE Environment Requirements](https://docs.astronomer.io/astro/cloud-ide/configure-project-environment#add-python-package-requirements).
+
+- `plotly==5.18.0`
+- `kaleido==0.2.1`
+
+Create a new Python cell called `visualize_global_top10`. Enter the following Python code into the cell:
+
+```python
+import plotly.express as px
+
+fig = px.choropleth(
+    rank_and_save,
+    locations="cou",
+    color="endangered_species",
+    hover_name="Country",
+    color_continuous_scale=px.colors.sequential.Plasma
+)
+```
+
+Run this cell and review the results. You should see a map of the world with the top 10 countries highlighted, where bright colors indicate a higher number of critically endangered species.
+
+### Step 12: Send a SUCCESS email
 
 Let's use AI for this! Towards the top of the screen, find the "Write with AI" button and click it to see a new cell open:
 
-1. Type a prompt that describes what you want to do, for example: "Send a success email"; then click "Suggest Cell". 
+1. Type a prompt that describes what you want to do, for example: "Send a success email"; then click "Suggest Cell".
 2. See the suggestion Ask Astro has for you and, if it has what you need, click "Accept".
-3. Fill out any details you'd like and make sure it runs as the last task of the pipeline (hint: add an upstream dependency),
+3. Fill out any details you'd like and make sure it runs as the last task of the pipeline (hint: add an upstream dependency)
