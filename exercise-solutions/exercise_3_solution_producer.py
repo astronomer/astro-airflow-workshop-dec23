@@ -9,7 +9,7 @@ API = "https://www.boredapi.com/api/activity"
 ex_1_activity_dataset = Dataset('file://localhost/airflow/include/activity.txt')
 
 with DAG(
-    dag_id="exercise_1_solution_producer",
+    dag_id="exercise_3_solution_producer",
     start_date=datetime(2022, 10, 1),
     schedule="@daily",
     tags=["exercise_1", "datasets", "solution", "ex_1_part_1"],

@@ -6,7 +6,7 @@ from datetime import datetime
 ex_1_activity_dataset = Dataset('file://localhost/airflow/include/activity.txt')
 
 with DAG(
-    dag_id="exercise_1_solution_consumer2",
+    dag_id="exercise_3_solution_consumer2",
     start_date=datetime(2022, 10, 1),
     schedule=[ex_1_activity_dataset], # scheduled on the dataset
     tags=["exercise_1", "datasets", "solution"],

@@ -13,10 +13,10 @@ API = f"https://api.agify.io/?name={YOUR_NAME}"
 age_estimate_dataset = Dataset("include/ex_2/age_estimate.txt")
 
 with DAG(
-    dag_id="exercise_2_solution_producer_slow",
+    dag_id="exercise_4_solution_producer_slow",
     start_date=datetime(2022, 10, 1),
     schedule="*/5 * * * *",
-    tags=["exercise_2", "datasets"],
+    tags=["exercise_4", "datasets"],
     catchup=False
 ):
 
