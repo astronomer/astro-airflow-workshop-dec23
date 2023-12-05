@@ -144,3 +144,11 @@ limit 10;
 ```
 
 Run the cell and review the results to determine which countries are conservation priorities.
+
+### Step 11: Send a SUCCESS email 
+
+Let's use AI for this! Towards the top of the screen, find the "Write with AI" button and click it to see a new cell open:
+
+1. Type a prompt that describes what you want to do, for example: "Send a success email"; then click "Suggest Cell". 
+2. See the suggestion Ask Astro has for you and, if it has what you need, click "Accept".
+3. Fill out any details you'd like and make sure it runs as the last task of the pipeline (hint: add an upstream dependency),
