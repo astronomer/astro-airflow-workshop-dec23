@@ -34,7 +34,7 @@ def get_params_helper(**context):
     },
     tags=[".is_teardown()", "setup/teardown"],
 )
-def setup_teardown_csv_methods():
+def exercise_5_solution():
     start = EmptyOperator(task_id="start")
     end = EmptyOperator(task_id="end")
 
@@ -121,4 +121,4 @@ def setup_teardown_csv_methods():
     )
 
 
-setup_teardown_csv_methods()
+exercise_5_solution()
