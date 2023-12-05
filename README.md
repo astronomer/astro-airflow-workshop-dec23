@@ -39,6 +39,7 @@ Feel free to use the following resources:
 
 - [Datasets and Data-Aware Scheduling in Airflow guide](https://www.astronomer.io/guides/airflow-datasets/)
 - [Setup/teardown tasks guide](https://docs.astronomer.io/learn/airflow-setup-teardown)
+- [Ask Astro](ask.astronomer.io)
 
 ### Exercise 3: Use datasets to break up a monolithic DAG
 
