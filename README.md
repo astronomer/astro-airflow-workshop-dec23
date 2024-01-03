@@ -7,7 +7,7 @@ This branch contains information for workshop hosts and contributors.
 
 ## Instructions and prerequisites for all workshops
 
-All workshops have their own branch in this repo (see #Choosing a workshop for more info about the different branched). The `README` in each branch contains instructions for the exercises. The file structure is the same as an Astro project, with an additional folder for `exercise-solutions` where relevant.
+All workshops have their own branch in this repo (see [Choosing a workshop](#choosing-a-workshop) for more info about the different branched). The `README` in each branch contains instructions for the exercises. The file structure is the same as an Astro project, with an additional folder for `exercise-solutions` where relevant.
 
 Workshops are intended to be given in person or virtually, with one Astronomer presenter and at least one other Astronomer helper. Workshop content is not designed for participants to complete asynchronously. 
 
