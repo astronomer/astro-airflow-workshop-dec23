@@ -9,6 +9,7 @@ This branch contains information for design review hosts and contributors.
 
 All design review sessions have their own branch in this repo (see [Choosing a design review session](#choosing-a-design-review-session) for more info about the different branches). The `README` in each branch contains instructions for hands-on exercises. The file structure is the same as an Astro project, with an additional folder for `exercise-solutions` where relevant.
 
+
 Design reviews are intended to be given in person, with one Astronomer presenter and at least one other Astronomer helper. Design review content is not designed for participants to complete asynchronously. 
 
 For each workshop, participants will need:
