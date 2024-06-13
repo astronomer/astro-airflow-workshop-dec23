@@ -1,5 +1,9 @@
 """
-Retrieve the Weather weather for today for a list of cities.
+Retrieve weather information for a list of cities.
+
+This DAG retrieves the latitude and longitude coordinates for each city provided 
+in a DAG param and uses these coordinates to get weather information from 
+a weather API. 
 """
 
 from airflow.decorators import dag, task
@@ -17,8 +21,10 @@ t_log = logging.getLogger("airflow.task")
     dag_display_name="Exercise Upstream DAG 🌤️",
     start_date=datetime(2024, 6, 1),
     schedule=None,
+    max_consecutive_failed_dag_runs=10,
     catchup=False,
     doc_md=__doc__,
+    description="Retrieve weather information for a list of cities.",
     default_args={
         "owner": "Astro",
         "retries": 3,
@@ -67,7 +73,7 @@ t_log = logging.getLogger("airflow.task")
 )
 def upstream_dag_1_ex():
 
-    ### EXERCISE ### 
+    ### EXERCISE ###
     # Currently only the first city in the list is used to retrieve weather data.
     # 1. Modify the get_cities task to return all cities in the list.
     # 2. Dynamically map the get_lat_long_for_one_city task over all cities in the list.
@@ -75,7 +81,7 @@ def upstream_dag_1_ex():
 
     @task
     def get_cities(**context) -> str:
-        ### MODIFY CODE HERE ### 
+        ### MODIFY CODE HERE ###
         return context["params"]["my_cities"][0]
 
     cities = get_cities()
@@ -96,7 +102,7 @@ def upstream_dag_1_ex():
         t_log.info(f"Coordinates for {city}: {lat}/{long}")
 
         return {"city": city, "lat": lat, "long": long}
-    
+
     ### MODIFY THE CALL OF THE get_lat_long_for_one_city FUNCTION HERE ###
 
     cities_coordinates = get_lat_long_for_one_city(city=cities)
@@ -182,33 +188,34 @@ def upstream_dag_1_ex():
             weather: The weather data for the cities of interest, in JSON format.
             cities_coordinates: The coordinates of the cities of interest.
         """
+        from airflow.models.xcom import LazyXComAccess
         import json
-        import pandas as pd
+        from tabulate import tabulate
         from include.helper_functions import (
             map_cities_to_weather,
-            create_weather_table,
-            log_weather_table,
         )
         import time
 
         time.sleep(context["params"]["simulate_task_delay"])
 
         weather = json.loads(weather)
+
         weather_parameter = context["params"]["weather_parameter"]
+
+        weather = weather if isinstance(weather, list) else [weather]
+        cities_coordinates = (
+            list(cities_coordinates)
+            if isinstance(cities_coordinates, LazyXComAccess)
+            else [cities_coordinates]
+        )
 
         city_weather_info = map_cities_to_weather(
             weather, cities_coordinates, weather_parameter
         )
 
-        if type(weather) == dict:
-            timestamps = weather["hourly"]["time"]
-        else:
-            timestamps = weather[0]["hourly"]["time"]
-        table, headers = create_weather_table(timestamps, city_weather_info)
-
-        log_weather_table(table, headers)
-
-        return pd.DataFrame(table, columns=headers)
+        t_log.info(
+            tabulate(city_weather_info, headers="keys", tablefmt="grid", showindex=True)
+        )
 
     weather_data = get_weather_from_response(
         weather_today=get_weather_today.output,

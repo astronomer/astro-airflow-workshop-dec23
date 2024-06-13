@@ -1,45 +1,65 @@
-def map_cities_to_weather(forecast, cities_coordinates, type_of_forecast):
+import pandas as pd
+
+def map_cities_to_weather(forecasts: list, cities_coordinates: list, type_of_forecast:str) -> pd.DataFrame:
     """
     Maps each city to its corresponding weather data based on the forecast type.
+    
+    Parameters:
+    - forecasts: A list of dictionaries containing weather data.
+    - cities_coordinates: A list of dictionaries containing city names and their coordinates.
+    - type_of_forecast: A string indicating the type of forecast to extract from the hourly data.
+    
+    Returns:
+    - A pandas DataFrame containing the weather data for each city for each timestamp.
     """
-    print(cities_coordinates)
 
-    if type(cities_coordinates) == dict:
-        city_weather_info = {cities_coordinates["city"]: []}
+    # Create list of city names and initial timestamps from the forecasts
+    list_of_cities = [city["city"] for city in cities_coordinates]
+    timestamps = forecasts[0]["hourly"]["time"]
 
-        city = cities_coordinates["city"]
-        if (
-            abs(cities_coordinates["lat"] - forecast["latitude"]) < 0.01
-            and abs(cities_coordinates["long"] - forecast["longitude"]) < 0.01
-        ):
-            city_weather_info[city] = forecast["hourly"][type_of_forecast]
+    # Initialize DataFrame
+    df = pd.DataFrame(columns=list_of_cities, index=timestamps)
 
-    else:
-        city_weather_info = {city["city"]: [] for city in cities_coordinates}
+    # Define a small threshold for coordinate matching
+    threshold = 0.05
 
-        for entry in forecast:
-            for city_info in cities_coordinates:
-                city = city_info["city"]
-                if (
-                    abs(city_info["lat"] - entry["latitude"]) < 0.01
-                    and abs(city_info["long"] - entry["longitude"]) < 0.01
-                ):
-                    city_weather_info[city] = entry["hourly"][type_of_forecast]
-                    break
+    # Iterate over each city in the coordinates list
+    for city in cities_coordinates:
+        city_name = city['city']
+        city_lat = city['lat']
+        city_long = city['long']
+        
+        # Find and process each matching forecast
+        for forecast in forecasts:
+            # Check if forecast coordinates are within threshold of city coordinates
+            if (abs(forecast['latitude'] - city_lat) < threshold and
+                abs(forecast['longitude'] - city_long) < threshold):
+                # If coordinates match, populate the DataFrame for this city
+                for i, time in enumerate(forecast["hourly"]["time"]):
+                    df.at[time, city_name] = forecast["hourly"][type_of_forecast][i]
+    
+    return df
 
-    return city_weather_info
+
+
+
+
 
 
 def create_weather_table(timestamps, city_weather_info):
     """
     Creates a table from the weather data and timestamps.
     """
+    print(city_weather_info)
+
     table = [
         [timestamp] + [city_weather_info[city][i] for city in city_weather_info]
         for i, timestamp in enumerate(timestamps)
     ]
     headers = ["Timestamp"] + list(city_weather_info.keys())
     return table, headers
+
+
 
 
 def log_weather_table(table, headers):

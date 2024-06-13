@@ -17,6 +17,7 @@ t_log = logging.getLogger("airflow.task")
     dag_display_name="Upstream DAG 🌍",
     start_date=datetime(2024, 6, 1),
     schedule=None,
+    max_consecutive_failed_dag_runs=10,
     catchup=False,
     doc_md=__doc__,
     default_args={

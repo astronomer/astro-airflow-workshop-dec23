@@ -25,7 +25,7 @@ from pendulum import datetime
     schedule=None, 
 
     ### END CODE HERE ###
-
+    max_consecutive_failed_dag_runs=10,
     catchup=False,
     doc_md=__doc__,
 

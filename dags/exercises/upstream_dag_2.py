@@ -17,6 +17,11 @@ t_log = logging.getLogger("airflow.task")
     dag_display_name="Exercise Upstream DAG 🌍",
     start_date=datetime(2024, 6, 1),
     schedule=None,
+    ### EXERCISE ###
+    # Set the number of maximum allowed consecutive failed DAG runs to 10.
+    ### START CODE HERE ###
+
+    ### STOP CODE HERE ###
     catchup=False,
     doc_md=__doc__,
     default_args={
