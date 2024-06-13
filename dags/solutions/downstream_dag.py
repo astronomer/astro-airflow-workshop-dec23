@@ -7,23 +7,33 @@ from airflow.models.dataset import Dataset
 from airflow.timetables.datasets import DatasetOrTimeSchedule
 from airflow.timetables.trigger import CronTriggerTimetable
 from pendulum import datetime
+import pandas as pd
+import json
+import logging
+
+t_log = logging.getLogger("airflow.task")
+
 
 @dag(
-    dag_display_name="Downstream DAG 📒",
+    dag_display_name="Solution Downstream DAG 📒",
     start_date=datetime(2024, 6, 1),
     schedule=DatasetOrTimeSchedule(
         timetable=CronTriggerTimetable("0 0 * * *", timezone="UTC"),
-        datasets=(Dataset("weather_data") & Dataset("population_info")),
+        datasets=(
+            Dataset("current_weather_data")
+            & Dataset("max_temp_data")
+            & (Dataset("wind_speed_data") | Dataset("wind_direction_data"))
+        ),
     ),
     catchup=False,
     doc_md=__doc__,
     default_args={"owner": "Astro", "retries": 3},
-    tags=["example"],
+    tags=["solution"],
 )
 def downstream_dag():
 
     @task
-    def get_cities_weather_table(**context):
+    def fetch_cities_weather_table(**context) -> pd.DataFrame:
 
         df = context["ti"].xcom_pull(
             dag_id="upstream_dag_1",
@@ -34,32 +44,100 @@ def downstream_dag():
         return df
 
     @task
-    def get_population_info(**context):
+    def fetch_max_temp_data(**context) -> dict:
 
-        pop_info = context["ti"].xcom_pull(
+        data = context["ti"].xcom_pull(
             dag_id="upstream_dag_2",
-            task_ids="get_pop_birth_year",
+            task_ids="get_max_temp",
             include_prior_dates=True,
         )
 
-        return pop_info
+        return json.loads(data)
 
     @task
-    def generate_report(weather, pop_info):
+    def fetch_wind_speed_data(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_wind_speed",
+            include_prior_dates=True,
+        )
+
+        return json.loads(data)
+
+    @task
+    def fetch_wind_direction_data(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_wind_direction",
+            include_prior_dates=True,
+        )
+
+        return json.loads(data)
+
+    @task
+    def fetch_wildcard_data(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_wildcard_data",
+            include_prior_dates=True,
+        )
+
+        return json.loads(data)
+    
+    @task
+    def fetch_city_dag_2(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_lat_long_for_one_city",
+            include_prior_dates=True,
+        )
+
+        return data
+
+    @task
+    def generate_report(
+        cities_weather: pd.DataFrame,
+        max_temp: dict,
+        wind_speed: dict,
+        wind_direction: dict,
+        wildcard: dict,
+        city_coordinates: dict,
+    ):
         from tabulate import tabulate
 
-        country = pop_info["country"]
-        pop = pop_info["population"]
-        year = pop_info["year"]
 
-        print("Tomorrow's weather forecast for your cities:")
-        print(tabulate(weather, headers="keys", tablefmt="grid", showindex=False))
-        print(f"The population of {country} was {pop} in {year}.")
+        t_log.info("Current Weather data:")
+        t_log.info(
+            tabulate(cities_weather, headers="keys", tablefmt="grid", showindex=True),
+        )
 
-    weather = get_cities_weather_table()
-    pop_info = get_population_info()
+        city = city_coordinates["city"]
+        date = max_temp["daily"]["time"][0]
 
-    generate_report(weather, pop_info)
+        t_log.info("--------------------------")
+        t_log.info(f"Historical Weather data for {city} on {date}:")
+
+        t_log.info(f"Max temperature data: {max_temp['daily']['temperature_2m_max'][0]}")
+        if wind_speed:
+            t_log.info(f"Wind speed data: {wind_speed['daily']['wind_speed_10m_max'][0]}")
+        if wind_direction:
+            t_log.info(f"Wind direction data: {wind_direction['daily']['wind_direction_10m_dominant'][0]}")
+        t_log.info("--------------------------")
+        if wildcard:
+            t_log.info(f"Wildcard data: {wildcard}")
+
+    generate_report(
+        fetch_cities_weather_table(),
+        fetch_max_temp_data(),
+        fetch_wind_speed_data(),
+        fetch_wind_direction_data(),
+        fetch_wildcard_data(),
+        fetch_city_dag_2()
+    )
 
 
 downstream_dag()

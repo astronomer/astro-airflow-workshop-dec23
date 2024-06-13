@@ -18,7 +18,7 @@ t_log = logging.getLogger("airflow.task")
 
 
 @dag(
-    dag_display_name="Exercise Upstream DAG 🌤️",
+    dag_display_name="Exercise Upstream DAG 1 🌤️",
     start_date=datetime(2024, 6, 1),
     schedule=None,
     max_consecutive_failed_dag_runs=10,
@@ -69,7 +69,7 @@ t_log = logging.getLogger("airflow.task")
             description="Set the number of seconds to delay the last task of this DAG.",
         ),
     },
-    tags=["weather"],
+    tags=["exercise"],
 )
 def upstream_dag_1_ex():
 
@@ -181,7 +181,7 @@ def upstream_dag_1_ex():
             raise ValueError("No weather data found.")
 
     @task(outlets=[Dataset("weather_data")])
-    def create_weather_table(weather: list, cities_coordinates: list, **context):
+    def create_weather_table(weather: list | dict, cities_coordinates: list | dict, **context):
         """
         Saves a table of the weather for the cities of interest to the logs and a CSV file.
         Args:
