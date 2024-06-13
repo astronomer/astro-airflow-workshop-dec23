@@ -1,10 +1,15 @@
 """
-Retrieve the population of a country in a specific year.
+Get historical weather data for a specific city and date.
+
+EXERCISES:
+1. Set the maximum number of consecutive failed DAG runs to 10.
+2. Turn the get_max_wind task into a producer for the Dataset("wind_speed_data").
+3. Turn the get_wind_direction task into a producer for the Dataset("wind_direction_data").
 """
 
 from airflow.decorators import dag, task
 from airflow.providers.http.operators.http import HttpOperator
-from airflow.models.baseoperator import chain
+from airflow.models.baseoperator import chain_linear
 from airflow.models.param import Param
 from airflow.datasets import Dataset
 from pendulum import datetime, duration
@@ -12,15 +17,19 @@ import logging
 
 t_log = logging.getLogger("airflow.task")
 
+_MAX_TEMP_TASK_ID = "get_max_temp"
+_WIND_SPEED_TASK_ID = "get_wind_speed"
+_WIND_DIRECTION_TASK_ID = "get_wind_direction"
+_WILDCARD_TASK_ID = "get_wildcard_data"
+
 
 @dag(
-    dag_display_name="Exercise Upstream DAG 2 🌦️",
+    dag_display_name="Exercise upstream DAG 2 🌦️",
     start_date=datetime(2024, 6, 1),
     schedule=None,
     ### EXERCISE ###
-    # Set the number of maximum allowed consecutive failed DAG runs to 10.
+    # Set the maximum number of consecutive failed DAG runs to 10
     ### START CODE HERE ###
-
     ### STOP CODE HERE ###
     catchup=False,
     doc_md=__doc__,
@@ -31,70 +40,155 @@ t_log = logging.getLogger("airflow.task")
         "retry_exponential_backoff": True,
     },
     params={
-        "my_country": Param(
-            "United States",
+        "my_city": Param(
+            "Bern",
             type="string",
-            title="Country of interest:",
-            description="Enter the country you want to retrieve population numbers for.",
+            title="City of interest:",
+            description="Enter the city you want to retrieve historic weather data for.",
         ),
-        "my_year_of_birth": Param(
-            1994,
-            type="number",
-            title="Year of birth",
-            description="Enter your year of birth.",
+        "my_date_of_birth": Param(
+            "1994-10-18T14:00:00+00:00",
+            type="string",
+            format="date-time",
         ),
-        "simulate_task_delay": Param(
-            0,
-            type="number",
-            title="Simulate task delay",
-            description="Set the number of seconds to delay the last task of this DAG.",
+        "get_max_temp": Param(
+            True,
+            type="boolean",
+            title="Get max temperature for my birthday",
+        ),
+        "get_max_wind_speed": Param(
+            False,
+            type="boolean",
+            title="Get max wind speed for my birthday",
+        ),
+        "get_wind_direction": Param(
+            False,
+            type="boolean",
+            title="Get the dominant wind direction for my birthday",
+            description="Wind direction is returned in degrees from 0 to 360. 0 is wind coming from the North, 90 from the East, 180 from the South, and 270 from the West.",
+        ),
+        "get_wildcard_data": Param(
+            False,
+            type="boolean",
+            title="Get data from the 'wildcard_conn' connection",
         ),
     },
     tags=["exercise"],
 )
 def upstream_dag_2_ex():
 
-    get_country_info = HttpOperator(
-        task_id="get_country_info",
-        endpoint="countries/population",
-        method="POST",
-        http_conn_id="country_api_conn",
+    @task
+    def get_lat_long_for_one_city(**context) -> dict:
+        """Converts a string of a city name provided into
+        lat/long coordinates."""
+        import requests
+
+        city = context["params"]["my_city"]
+
+        r = requests.get(f"https://photon.komoot.io/api/?q={city}")
+        long = r.json()["features"][0]["geometry"]["coordinates"][0]
+        lat = r.json()["features"][0]["geometry"]["coordinates"][1]
+
+        t_log.info(f"Coordinates for {city}: {lat}/{long}")
+
+        return {"city": city, "lat": lat, "long": long}
+
+    city_coordinates = get_lat_long_for_one_city()
+
+    @task
+    def reformat_date(**context) -> str:
+        from datetime import datetime
+
+        date_of_birth = context["params"]["my_date_of_birth"]
+        date_of_birth = datetime.fromisoformat(date_of_birth).strftime("%Y-%m-%d")
+
+        return date_of_birth
+
+    reformatted_date = reformat_date()
+
+    @task.branch
+    def determine_data_to_get(**context):
+        task_ids_to_run = []
+
+        if context["params"]["get_max_temp"]:
+            task_ids_to_run.append(_MAX_TEMP_TASK_ID)
+        if context["params"]["get_max_wind_speed"]:
+            task_ids_to_run.append(_WIND_SPEED_TASK_ID)
+        if context["params"]["get_wind_direction"]:
+            task_ids_to_run.append(_WIND_DIRECTION_TASK_ID)
+        if context["params"]["get_wildcard_data"]:
+            task_ids_to_run.append(_WILDCARD_TASK_ID)
+
+        return task_ids_to_run
+
+    get_max_temp = HttpOperator(
+        task_id=_MAX_TEMP_TASK_ID,
+        endpoint="archive",
+        method="GET",
+        http_conn_id="historical_weather_api_conn",
         log_response=True,
         data={
-            "country": "{{ params.my_country }}",
+            "latitude": city_coordinates["lat"],
+            "longitude": city_coordinates["long"],
+            "start_date": reformatted_date,
+            "end_date": reformatted_date,
+            "daily": "temperature_2m_max",
+            "timezone": "auto",
         },
+        outlets=[Dataset("max_temp_data")],
     )
 
-    ### EXERCISE ###
-    # This task pushes the population data to the XCom, which is our dataset we want 
-    # to schedule the downstream DAG on. 
-    # Modify the task to produce an update to the dataset "population_info".
-    # TIP: You will need to use the `outlets` parameter in the `@task` decorator.
+    get_max_wind = HttpOperator(
+        task_id=_WIND_SPEED_TASK_ID,
+        endpoint="archive",
+        method="GET",
+        http_conn_id="historical_weather_api_conn",
+        log_response=True,
+        data={
+            "latitude": city_coordinates["lat"],
+            "longitude": city_coordinates["long"],
+            "start_date": reformatted_date,
+            "end_date": reformatted_date,
+            "daily": "wind_speed_10m_max",
+            "timezone": "auto",
+        },
+        ## EXERCISE: Turn this task into a producer for the Dataset("wind_speed_data")
+        ## START CODE HERE ##
+        ## END CODE HERE ##
+    )
 
-    @task()
-    def get_pop_birth_year(country_info, **context):
-        import json
-        import time
+    get_wind_direction = HttpOperator(
+        task_id=_WIND_DIRECTION_TASK_ID,
+        endpoint="archive",
+        method="GET",
+        http_conn_id="historical_weather_api_conn",
+        log_response=True,
+        data={
+            "latitude": city_coordinates["lat"],
+            "longitude": city_coordinates["long"],
+            "start_date": reformatted_date,
+            "end_date": reformatted_date,
+            "daily": "wind_direction_10m_dominant",
+            "timezone": "auto",
+        },
+        ## EXERCISE: Turn this task into a producer for the Dataset("wind_direction_data")
+        ## START CODE HERE ##
+        ## END CODE HERE ##
+    )
 
-        time.sleep(context["params"]["simulate_task_delay"])
+    get_wildcard = HttpOperator(
+        task_id=_WILDCARD_TASK_ID,
+        endpoint="",
+        method="GET",
+        http_conn_id="wildcard_conn",
+        log_response=True,
+        outlets=[Dataset("wildcard_data")],
+    )
 
-        year_of_birth = context["params"]["my_year_of_birth"]
-        data = json.loads(country_info)["data"]
-        country = data["country"]
-        pop_counts = data["populationCounts"]
-
-        for entry in pop_counts:
-            if entry["year"] == year_of_birth:
-                print(f"Population of {country} in {year_of_birth}: {entry['value']}")
-                return {
-                    "country": country,
-                    "population": entry["value"],
-                    "year": year_of_birth,
-                }
-        print(f"No population data found for {country} in {year_of_birth}")
-        return None
-
-    chain(get_country_info, get_pop_birth_year(get_country_info.output))
+    chain_linear(
+        [determine_data_to_get(), city_coordinates, reformatted_date],
+        [get_max_temp, get_max_wind, get_wind_direction, get_wildcard],
+    )
 
 
 upstream_dag_2_ex()

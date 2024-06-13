@@ -4,6 +4,11 @@ Retrieve weather information for a list of cities.
 This DAG retrieves the latitude and longitude coordinates for each city provided 
 in a DAG param and uses these coordinates to get weather information from 
 a weather API. 
+
+EXERCISE:
+1. Change the DAG to retrieve weather information for all cities in the list 
+provided in the DAG param using dynamic task mapping.
+2. Turn the create_weather_table task into a producer for the Dataset("current_weather_data").
 """
 
 from airflow.decorators import dag, task
@@ -81,8 +86,9 @@ def upstream_dag_1_ex():
 
     @task
     def get_cities(**context) -> str:
-        ### MODIFY CODE HERE ###
+        ### START CODE HERE ### (modify the return statement to return all cities in the list)
         return context["params"]["my_cities"][0]
+        ### END CODE HERE  ###
 
     cities = get_cities()
 
@@ -103,10 +109,9 @@ def upstream_dag_1_ex():
 
         return {"city": city, "lat": lat, "long": long}
 
-    ### MODIFY THE CALL OF THE get_lat_long_for_one_city FUNCTION HERE ###
-
+    ### START CODE HERE ### (use the expand method to map the task over all cities)
     cities_coordinates = get_lat_long_for_one_city(city=cities)
-
+    ### END CODE HERE ###
     ### END EXERCISE ###
 
     @task.branch
@@ -169,7 +174,6 @@ def upstream_dag_1_ex():
         weather_yesterday: list,
         weather_today: list,
         weather_today_and_tomorrow: list,
-        **context,
     ):
         if weather_yesterday:
             return weather_yesterday
@@ -180,8 +184,16 @@ def upstream_dag_1_ex():
         else:
             raise ValueError("No weather data found.")
 
-    @task(outlets=[Dataset("weather_data")])
-    def create_weather_table(weather: list | dict, cities_coordinates: list | dict, **context):
+    ### EXERCISE ###
+    # Turn the create_weather_table task into a producer for the Dataset("current_weather_data")
+    # Tip: Use the outlets parameter to achieve this as shown in the upstream_dag_2.
+
+    ## START CODE HERE ##
+    @task()
+    ## END CODE HERE ##
+    def create_weather_table(
+        weather: list | dict, cities_coordinates: list | dict, **context
+    ):
         """
         Saves a table of the weather for the cities of interest to the logs and a CSV file.
         Args:
@@ -216,6 +228,8 @@ def upstream_dag_1_ex():
         t_log.info(
             tabulate(city_weather_info, headers="keys", tablefmt="grid", showindex=True)
         )
+
+        return city_weather_info
 
     weather_data = get_weather_from_response(
         weather_today=get_weather_today.output,

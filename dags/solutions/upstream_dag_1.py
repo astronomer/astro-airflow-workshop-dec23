@@ -171,7 +171,9 @@ def upstream_dag_1():
             raise ValueError("No weather data found.")
 
     @task(outlets=[Dataset("current_weather_data")])
-    def create_weather_table(weather: list | dict, cities_coordinates: list | dict, **context):
+    def create_weather_table(
+        weather: list | dict, cities_coordinates: list | dict, **context
+    ):
         """
         Saves a table of the weather for the cities of interest to the logs and a CSV file.
         Args:
@@ -206,6 +208,8 @@ def upstream_dag_1():
         t_log.info(
             tabulate(city_weather_info, headers="keys", tablefmt="grid", showindex=True)
         )
+
+        return city_weather_info
 
     weather_data = get_weather_from_response(
         weather_today=get_weather_today.output,

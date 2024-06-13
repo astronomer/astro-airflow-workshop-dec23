@@ -1,5 +1,5 @@
 """
-Retrieve the population of a country in a specific year.
+Get historical weather data for a specific city and date.
 """
 
 from airflow.decorators import dag, task
@@ -16,6 +16,7 @@ _MAX_TEMP_TASK_ID = "get_max_temp"
 _WIND_SPEED_TASK_ID = "get_wind_speed"
 _WIND_DIRECTION_TASK_ID = "get_wind_direction"
 _WILDCARD_TASK_ID = "get_wildcard_data"
+
 
 @dag(
     dag_display_name="Solution upstream DAG 2 🌦️",
@@ -63,7 +64,6 @@ _WILDCARD_TASK_ID = "get_wildcard_data"
             type="boolean",
             title="Get data from the 'wildcard_conn' connection",
         ),
-
     },
     tags=["solution"],
 )
@@ -84,7 +84,7 @@ def upstream_dag_2():
         t_log.info(f"Coordinates for {city}: {lat}/{long}")
 
         return {"city": city, "lat": lat, "long": long}
-    
+
     city_coordinates = get_lat_long_for_one_city()
 
     @task
@@ -95,10 +95,10 @@ def upstream_dag_2():
         date_of_birth = datetime.fromisoformat(date_of_birth).strftime("%Y-%m-%d")
 
         return date_of_birth
-    
+
     reformatted_date = reformat_date()
 
-    @task.branch 
+    @task.branch
     def determine_data_to_get(**context):
         task_ids_to_run = []
 
@@ -112,7 +112,7 @@ def upstream_dag_2():
             task_ids_to_run.append(_WILDCARD_TASK_ID)
 
         return task_ids_to_run
-    
+
     get_max_temp = HttpOperator(
         task_id=_MAX_TEMP_TASK_ID,
         endpoint="archive",
@@ -175,7 +175,7 @@ def upstream_dag_2():
 
     chain_linear(
         [determine_data_to_get(), city_coordinates, reformatted_date],
-        [get_max_temp, get_max_wind, get_wind_direction, get_wildcard]
+        [get_max_temp, get_max_wind, get_wind_direction, get_wildcard],
     )
 
 

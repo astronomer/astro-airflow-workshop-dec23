@@ -1,5 +1,14 @@
 """
-Generate a report with the weather forecast for the cities and the population information.
+Generate a report with the weather forecast for the cities and historical weather data.
+
+This DAG fetches the weather forecast for the cities and historical weather data from the upstream DAGs
+via XCom and generates a report with the data.
+
+EXERCISES:
+1. Give this DAG a display name.
+2. Give the DAG a DatasetOrTimeSchedule  
+3. Set the owner and retries for the DAG.
+4. Format the log message with the wildcard data.
 """
 
 from airflow.decorators import dag, task
@@ -7,76 +16,156 @@ from airflow.models.dataset import Dataset
 from airflow.timetables.datasets import DatasetOrTimeSchedule
 from airflow.timetables.trigger import CronTriggerTimetable
 from pendulum import datetime
+import pandas as pd
+import json
+import logging
+
+t_log = logging.getLogger("airflow.task")
+
 
 @dag(
     ### EXERCISE ###
-    # Define a display name for this DAG.
+    # Give this DAG a display name
     ### START CODE HERE ###
-
-    ### END CODE HERE ###
-
+    ### STOP CODE HERE ###
     start_date=datetime(2024, 6, 1),
-
     ### EXERCISE ###
-    # Define a schedule for this DAG to run both, every day at midnight UTC. 
-    # AND whenever the Dataset("weather_data") AND Dataset("population_info") are updated.
+    # Schedule the DAG to run every day at midnight UTC
+    # AND whenever both "current_weather_data" and "max_temp_data" are updated
+    # AS WELL AS ONE OF the datasets "wind_speed_data" OR "wind_direction_data".
     ### START CODE HERE ###
-
-    schedule=None, 
-
-    ### END CODE HERE ###
+    schedule=None,
+    ### STOP CODE HERE ###
     max_consecutive_failed_dag_runs=10,
     catchup=False,
     doc_md=__doc__,
-
+    description="Generate a report with the weather forecast for the cities and historical weather data.",
     ### EXERCISE ###
-    # Define the default arguments for this DAG. Give it an owner and set the number of retries.
-
+    # Set the owner of the DAG to your name and the number of retries to 3.
     ### START CODE HERE ###
-
-    ### END CODE HERE ###
+    ### STOP CODE HERE ###
     tags=["exercise"],
 )
 def downstream_dag_ex():
 
     @task
-    def get_cities_weather_table(**context):
+    def fetch_cities_weather_table(**context) -> pd.DataFrame:
 
         df = context["ti"].xcom_pull(
             dag_id="upstream_dag_1",
-            task_ids="create_forecast_table",
+            task_ids="create_weather_table",
             include_prior_dates=True,
         )
 
         return df
 
     @task
-    def get_population_info(**context):
+    def fetch_max_temp_data(**context) -> dict:
 
-        pop_info = context["ti"].xcom_pull(
+        data = context["ti"].xcom_pull(
             dag_id="upstream_dag_2",
-            task_ids="get_pop_birth_year",
+            task_ids="get_max_temp",
             include_prior_dates=True,
         )
 
-        return pop_info
+        return json.loads(data)
 
     @task
-    def generate_report(weather, pop_info):
+    def fetch_wind_speed_data(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_wind_speed",
+            include_prior_dates=True,
+        )
+
+        return json.loads(data)
+
+    @task
+    def fetch_wind_direction_data(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_wind_direction",
+            include_prior_dates=True,
+        )
+
+        return json.loads(data)
+
+    @task
+    def fetch_wildcard_data(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_wildcard_data",
+            include_prior_dates=True,
+        )
+
+        return json.loads(data)
+
+    @task
+    def fetch_city_dag_2(**context) -> dict:
+
+        data = context["ti"].xcom_pull(
+            dag_id="upstream_dag_2",
+            task_ids="get_lat_long_for_one_city",
+            include_prior_dates=True,
+        )
+
+        return data
+
+    @task
+    def generate_report(
+        cities_weather: pd.DataFrame,
+        max_temp: dict,
+        wind_speed: dict,
+        wind_direction: dict,
+        wildcard: dict,
+        city_coordinates: dict,
+    ):
         from tabulate import tabulate
 
-        country = pop_info["country"]
-        pop = pop_info["population"]
-        year = pop_info["year"]
+        if cities_weather is not None:
+            t_log.info("Current Weather data:")
+            t_log.info(
+                tabulate(
+                    cities_weather, headers="keys", tablefmt="grid", showindex=True
+                ),
+            )
 
-        print("Tomorrow's weather forecast for your cities:")
-        print(tabulate(weather, headers="keys", tablefmt="grid", showindex=False))
-        print(f"The population of {country} was {pop} in {year}.")
+        if max_temp:
+            city = city_coordinates["city"]
+            date = max_temp["daily"]["time"][0]
 
-    weather = get_cities_weather_table()
-    pop_info = get_population_info()
+            t_log.info("--------------------------")
+            t_log.info(f"Historical Weather data for {city} on {date}:")
+            t_log.info(
+                f"Max temperature data: {max_temp['daily']['temperature_2m_max'][0]}"
+            )
+        if wind_speed:
+            t_log.info(
+                f"Wind speed data: {wind_speed['daily']['wind_speed_10m_max'][0]}"
+            )
+        if wind_direction:
+            t_log.info(
+                f"Wind direction data: {wind_direction['daily']['wind_direction_10m_dominant'][0]}"
+            )
+        t_log.info("--------------------------")
+        if wildcard:
+            ### EXERCISE ###
+            # Format the log message with the wildcard data
+            ### START CODE HERE ###
+            t_log.info(f"Wildcard data: {wildcard}")
+            ### STOP CODE HERE ###
 
-    generate_report(weather, pop_info)
+    generate_report(
+        fetch_cities_weather_table(),
+        fetch_max_temp_data(),
+        fetch_wind_speed_data(),
+        fetch_wind_direction_data(),
+        fetch_wildcard_data(),
+        fetch_city_dag_2(),
+    )
 
 
 downstream_dag_ex()
