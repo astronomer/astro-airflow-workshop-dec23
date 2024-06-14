@@ -2,8 +2,11 @@ Astronomer Design Review
 ========================
 
 Astronomer’s Design Reviews are intended to give your team a hands-on way to uplevel your Airflow usage. Regardless of your team size, experience level, or use case, our experts will provide actionable recommendations to improve your workflow orchestration.
+=======
+## Overview
 
-This branch contains information for design review hosts and contributors.
+One of the biggest strengths of Airflow is its ability to scale to meet the changing demands of your organization, regardless of use case. Astro enables you to provide your teams with a robust, reliable Airflow service with enterprise-grade features. In this session, we’ll cover best practices for platform teams running Airflow on Astro at scale, including topics like cost optimization, how to identify when teams need new Airflow deployments, how to onboard new development teams quickly, and more.
+
 
 ## Instructions and prerequisites for all design reviews
 
@@ -30,3 +33,4 @@ There are four standard design review sessions available on different branches i
 ## Contributing and questions
 
 If you would like to contribute to or request a design review, or have any questions about the content, please reach out to the DevRel team.
+
