@@ -23,9 +23,9 @@ t_log = logging.getLogger("airflow.task")
     schedule=DatasetOrTimeSchedule(
         timetable=CronTriggerTimetable("0 0 * * *", timezone="UTC"),
         datasets=(
-            Dataset("current_weather_data")
-            & Dataset("max_temp_data")
-            & (Dataset("wind_speed_data") | Dataset("wind_direction_data"))
+            Dataset("CURRENT_WEATHER_DATA_DATASET_TO_REPLACE")
+            & Dataset("MAX_TEMP_DATASET_TO_REPLACE")
+            & (Dataset("WIND_SPEED_DATA_DATASET_TO_REPLACE") | Dataset("WINDDIRECTION_DATA_DATASET_TO_REPLACE"))
         ),
         # Runs every day at midnight UTC
         # AND whenever both "current_weather_data" and "max_temp_data" are updated
