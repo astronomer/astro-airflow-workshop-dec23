@@ -48,6 +48,7 @@ for i in range(NUMBER_OF_SETS_TO_GENERATE):
         line = line.replace("UPSTREAM_DAG_ID_1_TO_REPLACE", upstream_dag_1_id)
         line = line.replace("UPSTREAM_DAG_ID_2_TO_REPLACE", upstream_dag_2_id)
         line = line.replace("DOWNSTREAM_DAG_ID_TO_REPLACE", downstream_dag_id)
+        line = line.replace("WILDCARD_CONN_TO_REPLACE", f"wildcard_conn_{i+1}")
         line = line.replace("SET_NUMBER", set_number)
         print(line, end="")
 

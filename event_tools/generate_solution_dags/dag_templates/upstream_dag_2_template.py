@@ -168,7 +168,7 @@ def UPSTREAM_DAG_ID_2_TO_REPLACE():
         task_id=_WILDCARD_TASK_ID,
         endpoint="",
         method="GET",
-        http_conn_id="wildcard_conn",
+        http_conn_id="WILDCARD_CONN_TO_REPLACE",
         log_response=True,
         outlets=[Dataset("wildcard_data")],
     )
