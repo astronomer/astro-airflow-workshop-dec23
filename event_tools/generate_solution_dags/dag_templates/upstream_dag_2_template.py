@@ -127,7 +127,7 @@ def UPSTREAM_DAG_ID_2_TO_REPLACE():
             "daily": "temperature_2m_max",
             "timezone": "auto",
         },
-        outlets=[Dataset("max_temp_data")],
+        outlets=[Dataset("MAX_TEMP_DATASET_TO_REPLACE")],
     )
 
     get_max_wind = HttpOperator(
@@ -144,7 +144,7 @@ def UPSTREAM_DAG_ID_2_TO_REPLACE():
             "daily": "wind_speed_10m_max",
             "timezone": "auto",
         },
-        outlets=[Dataset("wind_speed_data")],
+        outlets=[Dataset("WIND_SPEED_DATA_DATASET_TO_REPLACE")],
     )
 
     get_wind_direction = HttpOperator(
@@ -161,7 +161,7 @@ def UPSTREAM_DAG_ID_2_TO_REPLACE():
             "daily": "wind_direction_10m_dominant",
             "timezone": "auto",
         },
-        outlets=[Dataset("wind_direction_data")],
+        outlets=[Dataset("WINDDIRECTION_DATA_DATASET_TO_REPLACE")],
     )
 
     get_wildcard = HttpOperator(
@@ -170,7 +170,7 @@ def UPSTREAM_DAG_ID_2_TO_REPLACE():
         method="GET",
         http_conn_id="wildcard_conn",
         log_response=True,
-        outlets=[Dataset("wildcard_data")],
+        outlets=[Dataset("WILDCARD_DATA_DATASET_TO_REPLACE")],
     )
 
     chain_linear(

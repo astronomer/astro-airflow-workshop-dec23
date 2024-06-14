@@ -170,7 +170,7 @@ def UPSTREAM_DAG_ID_1_TO_REPLACE():
         else:
             raise ValueError("No weather data found.")
 
-    @task(outlets=[Dataset("current_weather_data")])
+    @task(outlets=[Dataset("CURRENT_WEATHER_DATA_DATASET_TO_REPLACE")])
     def create_weather_table(
         weather: list | dict, cities_coordinates: list | dict, **context
     ):
