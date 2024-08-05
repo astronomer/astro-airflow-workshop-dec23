@@ -32,6 +32,7 @@ t_log = logging.getLogger("airflow.task")
         # AS WELL AS ONE OF the datasets "wind_speed_data" OR "wind_direction_data".
     ),
     catchup=False,
+    max_consecutive_failed_dag_runs=10,
     doc_md=__doc__,
     description="Generate a report with the weather forecast for the cities and historical weather data.",
     default_args={"owner": "Astro", "retries": 3},

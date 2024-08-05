@@ -36,7 +36,6 @@ t_log = logging.getLogger("airflow.task")
     ### START CODE HERE ###
     schedule=None,
     ### STOP CODE HERE ###
-    max_consecutive_failed_dag_runs=10,
     catchup=False,
     doc_md=__doc__,
     description="Generate a report with the weather forecast for the cities and historical weather data.",
