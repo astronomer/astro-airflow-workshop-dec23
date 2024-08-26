@@ -180,7 +180,7 @@ def upstream_dag_1():
             weather: The weather data for the cities of interest, in JSON format.
             cities_coordinates: The coordinates of the cities of interest.
         """
-        from airflow.models.xcom import LazyXComAccess
+        from airflow.models.xcom import LazyXComSelectSequence
         import json
         from tabulate import tabulate
         from include.helper_functions import (
@@ -197,7 +197,7 @@ def upstream_dag_1():
         weather = weather if isinstance(weather, list) else [weather]
         cities_coordinates = (
             list(cities_coordinates)
-            if isinstance(cities_coordinates, LazyXComAccess)
+            if isinstance(cities_coordinates, LazyXComSelectSequence)
             else [cities_coordinates]
         )
 
