@@ -1,31 +1,20 @@
 Astronomer Design Review
 ========================
 
-Astronomer’s Design Reviews are intended to give your team a hands-on way to uplevel your Airflow usage. Regardless of your team size, experience level, or use case, our experts will provide actionable recommendations to improve your workflow orchestration.
+The purpose of the design review program is to help customers discover more ways to leverage Airflow and Astro. They are 2-3 hour engagements for developers (data engineers, data scientists, etc.) designed to provide inspiration on how Airflow and Astro can be used for new use cases, to expand Astro usage within teams and/or to new teams.
 
-This branch contains information for design review hosts and contributors.
-
-## Instructions and prerequisites for all design reviews
-
-All design review sessions have their own branch in this repo (see [Choosing a design review session](#choosing-a-design-review-session) for more info about the different branches). The `README` in each branch contains instructions for hands-on exercises. The file structure is the same as an Astro project, with an additional folder for `exercise-solutions` where relevant.
+This branch contains information for design review hosts and contributors. All design review sessions have their own branch in this repo (see [Choosing a design review session](#choosing-a-design-review-session) for more info about the different branches). Branches contain Astro projects with the demo relevant for each session.
 
 
-Design reviews are intended to be given in person, with one Astronomer presenter and at least one other Astronomer helper. Design review content is not meant for participants to complete asynchronously. 
-
-For each workshop, participants will need:
-
-- An Astro account (a [free trial](https://astronomer.io/try-astro) will work, but ensure it has access to the features covered in the workshop before beginning).
-- The [Astro CLI](https://docs.astronomer.io/astro/cli/install-cli)
-- [Docker Desktop](https://docs.docker.com/get-docker/) (v18.09 or higher)
 
 ## Choosing a design review session
 
 There are four standard design review sessions available on different branches in the repository:
 
-- `introduction-to-airflow`: In this session, we’ll cover everything you need to know to get started with Airflow, including core concepts, the basics of writing pipelines, and how to identify use cases well suited to Airflow. We’ll also go over how to easily get started running Airflow on Astro, including creating deployments, deploying code, and navigating the Astro UI. This design review is suitable for beginner Airflow users.
-- `dag-writing-best-practices`: In this session, we'll cover best practices for developing DAGs that make the most of what Airflow has to offer. We’ll also include tips for writing DAGs efficiently with Astro features like the Cloud IDE, Github integration, and more. This design review is suitable for intermediate to advanced Airflow users.
-- `best-practices-astro-platform-management`: In this session, we’ll cover best practices for platform teams running Airflow on Astro at scale, including topics like cost optimization, how to identify when teams need new Airflow deployments, how to onboard new development teams quickly, and more. This design review is suitable for intermediate to advanced Airflow users.
-- `airflow-for-gen-ai`: In this session, we’ll provide reference architectures for how to leverage Airflow features to operationalize generative AI workflows and how to implement these workflows at scale on Astro. This design review is suitable for intermediate to advanced Airflow users.
+- `introduction-to-airflow`: Airflow is the gold standard for data orchestration; its flexibility, extensibility, and scalability make it ideal for almost any use case. Data professionals all over the world use Airflow for MLOps, LLMOps, ELT/ETL, operationalized analytics, and more. But when working with such a versatile tool, it helps to have guidance to steer you in the right direction for optimal use. In this session, we’ll cover everything you need to know to get started with Airflow, including core concepts, the basics of writing pipelines, and how to identify use cases well suited to Airflow. We’ll spend time discussing how Airflow can work for your existing workflows. This design review is appropriate for teams who are new to Airflow or currently use other schedulers.
+- `introduction-to-astro`: One of the biggest strengths of Airflow is its ability to scale to meet the changing demands of your organization, regardless of use case. Astro enables you to provide your teams with a robust, reliable Airflow service with enterprise-grade features. In this session, we’ll cover how Astro helps teams deploy Airflow at scale, and discuss how Astro can help optimize your Airflow workflows.
+- `airflow-for-gen-ai`: Machine Learning and Generative AI are critical components of any data-driven organization’s strategy, for anything from augmenting user-facing applications, to creating new products, to supercharging internal analytics and streamlining operations. Airflow is the leading workflow and data orchestration framework, and the platform on which data and machine learning engineers can unify their workflows, seamlessly integrating data engineering with machine learning operations (MLOps), including LLMOps. In this session, we’ll review your own AI projects, provide reference architectures for how to leverage Airflow features to operationalize ML and AI workflows and explore how to implement these workflows at scale on Astro.
+
 
 ## Contributing and questions
 
