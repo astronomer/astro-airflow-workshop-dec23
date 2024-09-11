@@ -2,5 +2,5 @@ CREATE TABLE IF NOT EXISTS {{ params.db_name }}.{{ params.schema_name }}.user_pu
     user_id STRING PRIMARY KEY,
     user_name STRING,
     total_purchases INTEGER,
-    total_spent NUMBER,
+    total_spent NUMBER
 );

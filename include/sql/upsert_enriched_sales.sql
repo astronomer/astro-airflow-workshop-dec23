@@ -1,4 +1,4 @@
-MERGE INTO ETL_DEMO.DEV.enriched_sales AS target
+MERGE INTO DESIGN_REVIEWS.DEV.enriched_sales AS target
 USING (
     SELECT 
         *
@@ -12,7 +12,7 @@ USING (
             s.quantity,
             s.sale_date,
             up.program,
-            up.program_effective_date,
+            up.program_effective_year,
             up.program_discount,
             t.price * s.quantity AS total_revenue,
             ROW_NUMBER() OVER (PARTITION BY s.sale_id ORDER BY s.sale_date DESC) AS rn
@@ -39,16 +39,16 @@ WHEN MATCHED THEN
         target.quantity = source.quantity,
         target.sale_date = source.sale_date,
         target.program = source.program,
-        target.program_effective_date = source.program_effective_date,
+        target.program_effective_year = source.program_effective_year,
         target.program_discount = source.program_discount,
         target.total_revenue = source.total_revenue
 WHEN NOT MATCHED THEN
     INSERT (
         sale_id, user_id, user_name, appliance_name, appliance_type, quantity, sale_date,
-        program, program_effective_date, program_discount, total_revenue
+        program, program_effective_year, program_discount, total_revenue
     )
     VALUES (
         source.sale_id, source.user_id, source.user_name, source.appliance_name, source.appliance_type, 
-        source.quantity, source.sale_date, source.program, source.program_effective_date, source.program_discount, 
+        source.quantity, source.sale_date, source.program, source.program_effective_year, source.program_discount, 
         source.total_revenue
     );
