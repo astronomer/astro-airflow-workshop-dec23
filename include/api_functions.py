@@ -159,7 +159,7 @@ def get_new_sales_from_internal_api(num_sales, date):
         num_users = 1
     users_df = generate_users_data(num_users=num_users, date=date)
     appliances_df = generate_appliances_data(date=date)
-    program_df = generate_program_data(num_utms=num_users, date=date)
+    program_df = generate_program_data(num_programs=num_users, date=date)
     sales_df = generate_sales_data(
         num_sales=num_sales, users_df=users_df, appliances_df=appliances_df, program_df=program_df, date=date
     )

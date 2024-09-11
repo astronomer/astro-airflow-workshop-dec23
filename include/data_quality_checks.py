@@ -13,14 +13,14 @@ column_mapping_users = {
     },
 }
 
-column_mapping_utms = {
-    "UTM_SOURCE": {
+column_mapping_programs = {
+    "PROGRAM": {
         "null_check": {"equal_to": 0},
     },
-    "UTM_MEDIUM": {
+    "PROGRAM_EFFECTIVE_YEAR": {
         "null_check": {"equal_to": 0},
     },
-    "UTM_CAMPAIGN": {
+    "PROGRAM_DISCOUNT": {
         "null_check": {"equal_to": 0},
     },
 }
@@ -35,6 +35,6 @@ column_mapping_sales = {
 
 column_mappings = {
     "users": column_mapping_users,
-    "utms": column_mapping_utms,
+    "programs": column_mapping_programs,
     "sales": column_mapping_sales,
 }

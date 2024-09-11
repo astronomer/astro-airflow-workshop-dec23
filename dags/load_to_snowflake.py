@@ -44,7 +44,7 @@ _SNOWFLAKE_DB_NAME = os.getenv("SNOWFLAKE_DB_NAME", "DESIGN_REVIEWS")
 _SNOWFLAKE_SCHEMA_NAME = os.getenv("SNOWFLAKE_SCHEMA_NAME", "DEV")
 _SNOWFLAKE_STAGE_NAME = os.getenv("SNOWFLAKE_STAGE_NAME", "DR_STAGE")
 
-LIST_OF_BASE_TABLE_NAMES = ["users", "appliances", "utms"]
+LIST_OF_BASE_TABLE_NAMES = ["users", "appliances", "programs"]
 
 # Creating ObjectStoragePath objects
 # See https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/objectstorage.html
