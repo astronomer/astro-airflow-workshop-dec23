@@ -5,8 +5,8 @@ This DAG transforms the data in Snowflake to create reporting tables.
 
 It creates the following tables:
 - `USER_PURCHASE_SUMMARY`
-- `REVENUE_BY_TEA_TYPE`
-- `SALES_FUNNEL_ANALYSIS`
+- `REVENUE_BY_APPLIANCE_TYPE`
+- `PROGRAM_ANALYSIS`
 - `TOP_USERS_BY_SPENDING`
 """
 
@@ -107,10 +107,10 @@ def transform_data_in_snowflake():
             },
         )
 
-        create_revenue_by_tea_type = SQLExecuteQueryOperator(
-            task_id="create_revenue_by_tea_type",
+        create_revenue_by_appliance_type = SQLExecuteQueryOperator(
+            task_id="create_revenue_by_appliance_type",
             conn_id=_SNOWFLAKE_CONN_ID,
-            sql="create_revenue_by_tea_type.sql",
+            sql="create_revenue_by_appliance_type.sql",
             show_return_value_in_logs=True,
             params={
                 "db_name": _SNOWFLAKE_DB_NAME,
@@ -118,10 +118,10 @@ def transform_data_in_snowflake():
             },
         )
 
-        create_sales_funnel_analysis = SQLExecuteQueryOperator(
-            task_id=f"create_sales_funnel_analysis",
+        create_program_analysis = SQLExecuteQueryOperator(
+            task_id=f"create_program_analysis",
             conn_id=_SNOWFLAKE_CONN_ID,
-            sql="create_sales_funnel_analysis.sql",
+            sql="create_program_analysis.sql",
             show_return_value_in_logs=True,
             params={
                 "db_name": _SNOWFLAKE_DB_NAME,
@@ -158,10 +158,10 @@ def transform_data_in_snowflake():
             ],
         )
 
-        upsert_revenue_by_tea_type = SQLExecuteQueryOperator(
-            task_id="upsert_revenue_by_tea_type",
+        upsert_revenue_by_appliance_type = SQLExecuteQueryOperator(
+            task_id="upsert_revenue_by_appliance_type",
             conn_id=_SNOWFLAKE_CONN_ID,
-            sql="upsert_revenue_by_tea_type.sql",
+            sql="upsert_revenue_by_appliance_type.sql",
             show_return_value_in_logs=True,
             params={
                 "db_name": _SNOWFLAKE_DB_NAME,
@@ -169,7 +169,7 @@ def transform_data_in_snowflake():
             },
             outlets=[
                 Dataset(
-                    f"snowflake://{_SNOWFLAKE_DB_NAME}.{_SNOWFLAKE_SCHEMA_NAME}.revenue_by_tea_type"
+                    f"snowflake://{_SNOWFLAKE_DB_NAME}.{_SNOWFLAKE_SCHEMA_NAME}.revenue_by_appliance_type"
                 )
             ],
         )
@@ -190,10 +190,10 @@ def transform_data_in_snowflake():
             ],
         )
 
-        upsert_sales_funnel_analysis = SQLExecuteQueryOperator(
-            task_id=f"upsert_sales_funnel_analysis",
+        upsert_program_analysis = SQLExecuteQueryOperator(
+            task_id=f"upsert_program_analysis",
             conn_id=_SNOWFLAKE_CONN_ID,
-            sql="upsert_sales_funnel_analysis.sql",
+            sql="upsert_program_analysis.sql",
             show_return_value_in_logs=True,
             params={
                 "db_name": _SNOWFLAKE_DB_NAME,
@@ -201,7 +201,7 @@ def transform_data_in_snowflake():
             },
             outlets=[
                 Dataset(
-                    f"snowflake://{_SNOWFLAKE_DB_NAME}.{_SNOWFLAKE_SCHEMA_NAME}.sales_funnel_analysis"
+                    f"snowflake://{_SNOWFLAKE_DB_NAME}.{_SNOWFLAKE_SCHEMA_NAME}.program_analysis"
                 )
             ],
         )
@@ -213,21 +213,21 @@ def transform_data_in_snowflake():
         vital_checks_enriched_sales_table,
         [
             create_user_purchase_summary,
-            create_revenue_by_tea_type,
-            create_sales_funnel_analysis,
+            create_revenue_by_appliance_type,
+            create_program_analysis,
         ],
     )
     chain(create_user_purchase_summary, create_top_users_by_spending)
     chain(create_user_purchase_summary, upsert_user_purchase_summary)
-    chain(create_revenue_by_tea_type, upsert_revenue_by_tea_type)
-    chain(create_sales_funnel_analysis, upsert_sales_funnel_analysis)
+    chain(create_revenue_by_appliance_type, upsert_revenue_by_appliance_type)
+    chain(create_program_analysis, upsert_program_analysis)
     chain(create_top_users_by_spending, upsert_top_users_by_spending)
     chain(
         [
             upsert_user_purchase_summary,
-            upsert_revenue_by_tea_type,
+            upsert_revenue_by_appliance_type,
             upsert_top_users_by_spending,
-            upsert_sales_funnel_analysis,
+            upsert_program_analysis,
         ],
         end,
     )

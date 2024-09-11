@@ -42,9 +42,9 @@ t_log = logging.getLogger("airflow.task")
 _SNOWFLAKE_CONN_ID = os.getenv("SNOWFLAKE_CONN_ID", "snowflake_default")
 _SNOWFLAKE_DB_NAME = os.getenv("SNOWFLAKE_DB_NAME", "DESIGN_REVIEWS")
 _SNOWFLAKE_SCHEMA_NAME = os.getenv("SNOWFLAKE_SCHEMA_NAME", "DEV")
-_SNOWFLAKE_STAGE_NAME = os.getenv("SNOWFLAKE_STAGE_NAME", "ETL_STAGE")
+_SNOWFLAKE_STAGE_NAME = os.getenv("SNOWFLAKE_STAGE_NAME", "DR_STAGE")
 
-LIST_OF_BASE_TABLE_NAMES = ["users", "appliances", "programs"]
+LIST_OF_BASE_TABLE_NAMES = ["users", "appliances", "utms"]
 
 # Creating ObjectStoragePath objects
 # See https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/objectstorage.html
@@ -230,39 +230,35 @@ def load_to_snowflake():
         from include.data_quality_checks import column_mappings
 
         SQLColumnCheckOperator(
-            task_id="additional_dq_checks_teas_col",
+            task_id="additional_dq_checks_appliances_col",
             conn_id=_SNOWFLAKE_CONN_ID,
             database=_SNOWFLAKE_DB_NAME,
-            table=f"{_SNOWFLAKE_SCHEMA_NAME}.teas",
+            table=f"{_SNOWFLAKE_SCHEMA_NAME}.appliances",
             column_mapping={
-                "TEA_NAME": {
+                "APPLIANCE_NAME": {
                     "null_check": {"equal_to": 0},
-                    "distinct_check": {"geq_to": 20},
+                    "distinct_check": {"geq_to": 12},
                 },
-                "TEA_TYPE": {
+                "APPLIANCE_TYPE": {
                     "null_check": {"equal_to": 0},
-                    "distinct_check": {"equal_to": 6},
+                    "distinct_check": {"equal_to": 5},
                 },
                 "PRICE": {
                     "null_check": {"equal_to": 0},
                     "min": {"geq_to": 0},
-                    "max": {"leq_to": 19},
+                    "max": {"leq_to": 10000},
                 },
             },
         )
 
         SQLTableCheckOperator(
-            task_id="additional_dq_checks_teas_table",
+            task_id="additional_dq_checks_appliances_table",
             conn_id=_SNOWFLAKE_CONN_ID,
             database=_SNOWFLAKE_DB_NAME,
-            table=f"{_SNOWFLAKE_SCHEMA_NAME}.teas",
+            table=f"{_SNOWFLAKE_SCHEMA_NAME}.appliances",
             checks={
-                "tea_type_check": {
-                    "check_statement": "TEA_TYPE IN ('Green', 'Black', 'Oolong', 'Floral', 'Herbal', 'Chai')"
-                },
-                "at_least_3_affordable_teas": {
-                    "check_statement": "COUNT(DISTINCT TEA_ID) >=3",
-                    "partition_clause": "PRICE < 10",  # a WHERE statement without the WHERE keyword
+                "appliance_type_check": {
+                    "check_statement": "APPLIANCE_TYPE IN ('Heating and Cooling', 'Cooking Appliances', 'Drying and Laundry', 'Outdoor and Other Appliances', 'Specialized and Additional Appliances')"
                 },
             },
         )

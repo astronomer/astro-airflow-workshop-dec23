@@ -1,19 +1,19 @@
-MERGE INTO {{ params.db_name }}.{{ params.schema_name }}.revenue_by_tea_type AS target
+MERGE INTO {{ params.db_name }}.{{ params.schema_name }}.revenue_by_appliance_type AS target
 USING (
     SELECT 
-        tea_type,
+        appliance_type,
         SUM(total_revenue) AS total_revenue
     FROM {{ params.db_name }}.{{ params.schema_name }}.enriched_sales
-    GROUP BY tea_type
+    GROUP BY appliance_type
 ) AS source
-ON target.tea_type = source.tea_type
+ON target.appliance_type = source.appliance_type
 WHEN MATCHED THEN
     UPDATE SET
         target.total_revenue = source.total_revenue
 WHEN NOT MATCHED THEN
     INSERT (
-        tea_type, total_revenue
+        appliance_type, total_revenue
     )
     VALUES (
-        source.tea_type, source.total_revenue
+        source.appliance_type, source.total_revenue
     );

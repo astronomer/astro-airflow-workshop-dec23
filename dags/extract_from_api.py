@@ -24,7 +24,7 @@ t_log = logging.getLogger("airflow.task")
 _AWS_CONN_ID = os.getenv("AWS_CONN_ID", "aws_default")
 _S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "my-bucket")
 _BUCKET_REGION = os.getenv("BUCKET_REGION", "us-east-1")
-_INGEST_FOLDER_NAME = os.getenv("INGEST_FOLDER_NAME", "tea-sales-ingest")
+_INGEST_FOLDER_NAME = os.getenv("INGEST_FOLDER_NAME", "appliance-sales-ingest")
 
 # Creating ObjectStoragePath objects
 # See https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/objectstorage.html
@@ -97,19 +97,19 @@ def extract_from_api():
         date = context["ts"]
         from include.api_functions import get_new_sales_from_internal_api
 
-        sales_df, users_df, teas_df, utm_df = get_new_sales_from_internal_api(num_sales, date)
+        sales_df, users_df, appliances_df, program_df = get_new_sales_from_internal_api(num_sales, date)
 
         t_log.info(f"Fetching {num_sales} new sales from the internal API.")
         t_log.info(f"Head of the new sales data: {sales_df.head()}")
         t_log.info(f"Head of the new users data: {users_df.head()}")
-        t_log.info(f"Head of the new teas data: {teas_df.head()}")
-        t_log.info(f"Head of the new utm data: {utm_df.head()}")
+        t_log.info(f"Head of the new appliances data: {appliances_df.head()}")
+        t_log.info(f"Head of the new program data: {program_df.head()}")
 
         return [
             {"name": "sales", "data": sales_df},
             {"name": "users", "data": users_df},
-            {"name": "teas", "data": teas_df},
-            {"name": "utms", "data": utm_df},
+            {"name": "appliances", "data": appliances_df},
+            {"name": "programs", "data": program_df},
         ]
 
     get_new_sales_from_api_obj = get_new_sales_from_api()
