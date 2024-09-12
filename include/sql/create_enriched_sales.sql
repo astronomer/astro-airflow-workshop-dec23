@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS {{ params.db_name }}.{{ params.schema_name }}.enriche
     program_discount STRING,
     program_effective_year STRING,
     total_revenue NUMBER,
-    total_savings NUMBER
+    total_savings NUMBER,
     CONSTRAINT unique_sale_id UNIQUE (sale_id)
 ) AS
 SELECT 
@@ -24,8 +24,8 @@ SELECT
     up.program,
     up.program_discount,
     up.program_effective_year,
-    t.price * s.quantity AS total_revenue
-    t.price * s.quantity * (1 - p.program_discount) AS total_savings
+    t.price * s.quantity AS total_revenue,
+    t.price * s.quantity * up.program_discount AS total_savings
 FROM {{ params.db_name }}.{{ params.schema_name }}.sales s
 JOIN {{ params.db_name }}.{{ params.schema_name }}.users u ON s.user_id = u.user_id
 JOIN {{ params.db_name }}.{{ params.schema_name }}.appliances t ON s.appliance_id = t.appliance_id

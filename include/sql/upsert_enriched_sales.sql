@@ -15,6 +15,7 @@ USING (
             up.program_effective_year,
             up.program_discount,
             t.price * s.quantity AS total_revenue,
+            t.price * s.quantity * up.program_discount AS total_savings,
             ROW_NUMBER() OVER (PARTITION BY s.sale_id ORDER BY s.sale_date DESC) AS rn
         FROM 
             {{ params.db_name }}.{{ params.schema_name }}.sales s
@@ -41,14 +42,15 @@ WHEN MATCHED THEN
         target.program = source.program,
         target.program_effective_year = source.program_effective_year,
         target.program_discount = source.program_discount,
-        target.total_revenue = source.total_revenue
+        target.total_revenue = source.total_revenue,
+        target.total_savings = source.total_savings
 WHEN NOT MATCHED THEN
     INSERT (
         sale_id, user_id, user_name, appliance_name, appliance_type, quantity, sale_date,
-        program, program_effective_year, program_discount, total_revenue
+        program, program_effective_year, program_discount, total_revenue, total_savings
     )
     VALUES (
         source.sale_id, source.user_id, source.user_name, source.appliance_name, source.appliance_type, 
         source.quantity, source.sale_date, source.program, source.program_effective_year, source.program_discount, 
-        source.total_revenue
+        source.total_revenue, source.total_savings
     );

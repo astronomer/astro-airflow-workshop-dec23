@@ -8,7 +8,7 @@ USING (
         SUM(total_revenue) AS total_revenue,
         SUM(total_savings) AS total_savings
     FROM {{ params.db_name }}.{{ params.schema_name }}.enriched_sales
-    GROUP BY program, program_discount, program_effective_year,
+    GROUP BY program, program_discount, program_effective_year
 ) AS source
 ON target.program = source.program 
    AND target.program_effective_year = source.program_effective_year 
