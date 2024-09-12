@@ -83,7 +83,7 @@ def extract_from_api():
         region_name=_BUCKET_REGION,
     )
 
-    @task
+    @task(queue='transform-tasks')
     def get_new_sales_from_api(**context) -> list[pd.DataFrame]:
         """
         Get new sales data from an internal API.
