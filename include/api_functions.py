@@ -105,7 +105,7 @@ def generate_appliances_data(filename="appliances.csv", date=None):
 
 def generate_program_data(num_programs=100, date=None, filename="programs.csv"):
     program_effective_year = ["2022", "2023", "2024", "2025", "2026"]
-    program_discount = ["10%", "20%", "30%", "40%", "50%"]
+    program_discount = ["0.1", "0.2", "0.3", "0.4", "0.5"]
     programs = [
         "Energy Star Rebates",
         "Federal Tax Credits",
@@ -117,7 +117,7 @@ def generate_program_data(num_programs=100, date=None, filename="programs.csv"):
     data = {
         "program_id": generate_uuids(num_programs),
         "program": random.choices(programs, k=num_programs),
-        "program_discount": random.choices(programs, k=num_programs),
+        "program_discount": random.choices(program_discount, k=num_programs),
         "program_effective_year": random.choices(program_effective_year, k=num_programs),
         "updated_at": date,
     }
