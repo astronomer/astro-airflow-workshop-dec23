@@ -116,8 +116,8 @@ def generate_program_data(num_programs=100, date=None, filename="programs.csv"):
 
     data = {
         "program_id": generate_uuids(num_programs),
-        "program_discount": random.choices(programs, k=num_programs),
         "program": random.choices(programs, k=num_programs),
+        "program_discount": random.choices(programs, k=num_programs),
         "program_effective_year": random.choices(program_effective_year, k=num_programs),
         "updated_at": date,
     }

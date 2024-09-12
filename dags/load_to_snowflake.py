@@ -31,7 +31,7 @@ import os
 
 
 ## SET YOUR OWN BUCKET NAME HERE
-_S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "my-bucket")
+_S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "design-reviews-etl")
 _INGEST_FOLDER_NAME = os.getenv("INGEST_FOLDER_NAME", "appliance-sales-ingest")
 _STAGE_FOLDER_NAME = os.getenv("STAGE_FOLDER_NAME", "appliance-sales-stage")
 
