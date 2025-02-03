@@ -210,7 +210,7 @@ def cost_attribution():
 
     cost_attribution = SQLExecuteQueryOperator(
         task_id="cost_attribution",
-        conn_id="snowflake",
+        conn_id="snowflake_default",
         sql="""
             select
                 query_id,
@@ -224,7 +224,7 @@ def cost_attribution():
 
     rows_processed_attribution = SQLExecuteQueryOperator(
         task_id="rows_processed_attribution",
-        conn_id="snowflake",
+        conn_id="snowflake_default",
         sql="""
             select
                 query_id,
